@@ -345,6 +345,15 @@ Pero no siempre hace falta arrancar toda la aplicación.
 | `@DataJpaTest` | Para probar repositorios |
 | `@SpringBootTest` | Para pruebas más completas de integración |
 
+## Para equipos que quieran subir nivel
+
+Además de lo básico, suele aportar valor incluir:
+
+- tests de contrato entre microservicios (consumer/provider);
+- `Testcontainers` para integrar con base de datos o Kafka reales de test;
+- una pirámide de tests equilibrada (más unitarios, menos end-to-end);
+- criterios mínimos de calidad en PR (por ejemplo, cobertura por módulo y casos borde).
+
 ## Idea clave
 
 > La IA puede escribir código, pero los tests ayudan a demostrar que ese código se comporta como esperamos.
@@ -403,6 +412,16 @@ Antes de aceptar código, revisar:
 - ¿hay endpoints administrativos sin protección?
 - ¿hay CORS abierto sin necesidad?
 - ¿se devuelven entidades JPA directamente?
+- ¿hay riesgo de inyección (SQL, NoSQL, LDAP)?
+- ¿hay riesgo de SSRF al llamar URLs externas?
+- ¿hay deserialización insegura de datos no confiables?
+- ¿hay mass assignment (se actualizan campos que no deberían)?
+- ¿se exponen trazas internas en errores HTTP?
+- ¿los secretos están fuera del código y rotados?
+
+## Referencia útil
+
+Si el equipo necesita una base común, podéis usar OWASP ASVS como checklist más completo de seguridad.
 
 ## Idea clave
 
@@ -459,6 +478,20 @@ Una opción más segura puede ser:
 3. Publicar un evento UserCreated.
 4. Otro proceso envía el email.
 ```
+
+## Detalle importante: evitar perder eventos
+
+Si publicas el evento justo después del commit, aún puede fallar esa publicación.
+
+Para sistemas críticos, es habitual usar patrón **Transactional Outbox**:
+
+```text
+1. En la misma transacción guardas usuario + registro de evento (outbox).
+2. Un proceso aparte lee la outbox y publica el evento.
+3. Cuando publica bien, marca el evento como enviado.
+```
+
+Así reduces el riesgo de "dato guardado pero evento perdido".
 
 ## Idea clave
 
@@ -524,6 +557,8 @@ Tercer intento falla.
 Se manda a revisión.
 ```
 
+Importante: no reintentar sin control operaciones no idempotentes, porque puedes duplicar cobros o pedidos.
+
 ### Circuit breaker
 
 Evita seguir llamando a un servicio que está fallando.
@@ -532,6 +567,24 @@ Evita seguir llamando a un servicio que está fallando.
 Payment Service falla muchas veces.
 El sistema deja de llamarlo temporalmente.
 Así evitamos saturarlo más.
+```
+
+### Timeouts explícitos
+
+No dejes llamadas remotas sin límite de tiempo.
+
+```text
+Toda llamada HTTP/gRPC debe tener timeout de conexión y de respuesta.
+```
+
+Sin timeout, un hilo puede quedarse bloqueado y degradar todo el servicio.
+
+### Bulkhead (aislamiento)
+
+Separa recursos para que un fallo en una integración no arrastre todo.
+
+```text
+Si falla Payment Service, no debería quedarse sin recursos todo el Order Service.
 ```
 
 ### Correlation ID
@@ -581,7 +634,22 @@ Antes de añadir una dependencia sugerida por IA, revisar:
 - si tiene licencia compatible;
 - si tiene vulnerabilidades conocidas;
 - si realmente hace falta;
-- si Spring ya ofrece una solución oficial o más estándar.
+- si Spring ya ofrece una solución oficial o más estándar;
+- qué dependencias transitivas arrastra;
+- si podemos fijar versión exacta y evitar upgrades accidentales;
+- si aparece en una SBOM del proyecto;
+- si viene de un repositorio permitido por la empresa.
+
+## Recomendación práctica
+
+Para proyectos de empresa, conviene definir una política simple:
+
+```text
+- solo repositorios aprobados;
+- versiones fijadas;
+- escaneo CVE en CI;
+- actualización periódica de dependencias.
+```
 
 ## Prompt útil
 
@@ -779,6 +847,16 @@ Errores:
 404 - Producto no encontrado
 409 - Stock insuficiente
 ```
+
+## Buenas prácticas de contrato API
+
+Además del ejemplo simple, ayuda definir también:
+
+- formato estándar de errores (por ejemplo `application/problem+json`);
+- versionado de API;
+- compatibilidad hacia atrás;
+- reglas de paginación, ordenación y filtros;
+- cuándo una operación debe ser idempotente y cómo garantizarlo.
 
 Después de tener esto claro, ya tiene sentido generar código.
 
@@ -1436,7 +1514,9 @@ Incluye:
 - entidad no encontrada;
 - error de servicio externo;
 - verificación de interacciones con mocks;
-- nombres de test claros.
+- nombres de test claros;
+- casos de idempotencia/reintentos si aplica;
+- qué test es unitario, integración o contrato.
 ```
 
 ## Prompt para revisar seguridad
@@ -1453,7 +1533,10 @@ Comprueba:
 - CORS;
 - secretos en código;
 - endpoints administrativos;
-- manejo de errores.
+- manejo de errores;
+- riesgo de inyección;
+- riesgo de SSRF;
+- mass assignment.
 ```
 
 ## Prompt para diseñar una API
@@ -1471,7 +1554,10 @@ Incluye:
 - errores;
 - validaciones;
 - ejemplos;
-- decisiones importantes.
+- decisiones importantes;
+- estrategia de versionado;
+- formato de errores (`problem+json`);
+- reglas de idempotencia.
 ```
 
 ---
@@ -1490,7 +1576,10 @@ Incluye:
 [ ] Revisa permisos.
 [ ] No filtra datos sensibles.
 [ ] No añade dependencias sin validar.
+[ ] Dependencias revisadas (CVE/transitivas/licencia/repositorio).
 [ ] No usa patrones innecesarios.
+[ ] Si hay eventos, se revisó consistencia (outbox o alternativa).
+[ ] Llamadas externas con timeout y estrategia de retry segura.
 [ ] Tiene nombres claros.
 [ ] Es mantenible.
 [ ] Encaja con el dominio.
