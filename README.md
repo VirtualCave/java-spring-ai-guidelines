@@ -1,4 +1,3 @@
-# Guía sencilla para no perder criterio técnico usando IA en equipos Java/Spring Boot
 
 ## Objetivo de esta guía
 
@@ -10,36 +9,8 @@ Pero hay una idea muy importante:
 
 Esta guía explica, con lenguaje sencillo y ejemplos de poca complejidad, qué debería conocer un equipo que trabaja con **Java, Spring Boot y microservicios** para aprovechar la IA sin perder criterio técnico.
 
----
 
-## Índice
-
-1. La IA no es un arquitecto de software
-2. Código que compila no siempre es código correcto
-3. La IA debe respetar la arquitectura del proyecto
-4. Pedir bien a la IA: prompts sencillos y útiles
-5. No aceptar código generado sin tests
-6. Seguridad: la IA puede generar código peligroso
-7. Transacciones en Spring Boot
-8. Microservicios: cuidado con las soluciones demasiado simples
-9. No confiar en dependencias inventadas
-10. Usar IA con código legacy
-11. MapStruct: revisar los mapeos
-12. API primero, código después
-13. Documentación técnica con IA
-14. Patrones de diseño: no usarlos porque sí
-15. IA como apoyo en code review
-16. Privacidad y datos sensibles
-17. Pedir explicaciones, no solo código
-18. Señales de una mala respuesta de IA
-19. Flujo recomendado de trabajo con IA
-20. Conceptos mínimos que debe conocer el equipo
-21. Reglas internas recomendadas
-22. Resumen final
-
----
-
-# 1. La IA no es un arquitecto de software
+## La IA no es un arquitecto de software
 
 La IA puede ayudar a escribir código, pero no debería decidir por sí sola cómo se diseña un sistema.
 
@@ -53,7 +24,7 @@ Un equipo técnico sigue siendo responsable de decidir cosas como:
 - cómo se hacen los tests;
 - cómo se mantiene el código a largo plazo.
 
-## Ejemplo sencillo
+### Ejemplo sencillo
 
 Le pides a la IA:
 
@@ -73,7 +44,7 @@ Esto puede parecer cómodo, pero en microservicios suele ser una mala idea.
 
 Cada microservicio debería ser dueño de sus propios datos. Un servicio no debería consultar directamente la base de datos de otro.
 
-## Mejor enfoque
+### Mejor enfoque
 
 Una forma más sana sería:
 
@@ -83,17 +54,17 @@ Order Service tiene su propia base de datos.
 User Service y Order Service se comunican mediante API o eventos.
 ```
 
-## Idea clave
+### Idea clave
 
 > La IA puede proponer opciones, pero el equipo debe decidir si esas opciones tienen sentido técnico.
 
 ---
 
-# 2. Código que compila no siempre es código correcto
+## Código que compila no siempre es código correcto
 
 La IA puede generar código que parece limpio y que incluso compila, pero eso no significa que sea buen código.
 
-## Ejemplo malo
+### Ejemplo malo
 
 ```java
 @RestController
@@ -119,7 +90,7 @@ A primera vista parece correcto, pero tiene varios problemas:
 - no se ve ninguna validación de permisos;
 - puede exponer campos internos de la base de datos.
 
-## Versión más recomendable
+### Versión más recomendable
 
 ```java
 @RestController
@@ -138,17 +109,17 @@ public class UserController {
 
 Aquí el controlador no sabe cómo se busca el usuario. Solo delega en un caso de uso.
 
-## Idea clave
+### Idea clave
 
 > No basta con que el código compile. Debe ser seguro, entendible, testeable y coherente con la arquitectura.
 
 ---
 
-# 3. La IA debe respetar la arquitectura del proyecto
+## La IA debe respetar la arquitectura del proyecto
 
 La IA suele generar ejemplos genéricos. Si no le explicas cómo está organizado tu proyecto, puede mezclar capas o crear código difícil de mantener.
 
-## Estructura sencilla recomendada
+### Estructura sencilla recomendada
 
 ```text
 src/main/java/com/company/users
@@ -163,7 +134,7 @@ src/main/java/com/company/users
       └── persistence
 ```
 
-## Qué significa cada capa
+### Qué significa cada capa
 
 ### api
 
@@ -200,7 +171,7 @@ Contiene detalles técnicos:
 - mensajería;
 - integración con otros sistemas.
 
-## Ejemplo de prompt útil
+### Ejemplo de prompt útil
 
 ```text
 Genera el código respetando esta estructura:
@@ -215,19 +186,19 @@ No pongas lógica de negocio en el controller.
 No devuelvas entidades JPA en la API.
 ```
 
-## Idea clave
+### Idea clave
 
 > La IA debe adaptarse a la arquitectura del equipo, no al revés.
 
 ---
 
-# 4. Pedir bien a la IA: prompts sencillos y útiles
+## Pedir bien a la IA: prompts sencillos y útiles
 
 Un prompt es la instrucción que le das a la IA.
 
 Un mal prompt da resultados genéricos. Un buen prompt da resultados más útiles.
 
-## Prompt demasiado vago
+### Prompt demasiado vago
 
 ```text
 Hazme un endpoint para crear usuarios.
@@ -242,7 +213,7 @@ La IA no sabe:
 - si tienes arquitectura hexagonal;
 - cómo manejas errores.
 
-## Prompt más útil
+### Prompt más útil
 
 ```text
 Actúa como desarrollador senior Java.
@@ -266,13 +237,13 @@ Reglas:
 - Explica las decisiones importantes.
 ```
 
-## Idea clave
+### Idea clave
 
 > Cuanto mejor expliques el contexto, mejor será la respuesta de la IA.
 
 ---
 
-# 5. No aceptar código generado sin tests
+## No aceptar código generado sin tests
 
 Una regla muy sana para el equipo sería:
 
@@ -280,7 +251,7 @@ Una regla muy sana para el equipo sería:
 
 La IA puede escribir código rápido, pero el equipo necesita comprobar que funciona.
 
-## Ejemplo de caso de uso
+### Ejemplo de caso de uso
 
 ```java
 public class GetUserUseCase {
@@ -296,7 +267,7 @@ public class GetUserUseCase {
 }
 ```
 
-## Tests que deberíamos pedir
+### Tests que deberíamos pedir
 
 ```text
 Genera tests unitarios para GetUserUseCase.
@@ -308,7 +279,7 @@ Incluye:
 - nombres de test claros.
 ```
 
-## Ejemplo de test sencillo
+### Ejemplo de test sencillo
 
 ```java
 @Test
@@ -324,7 +295,7 @@ void shouldReturnUserWhenUserExists() {
 }
 ```
 
-## Cuidado con `@SpringBootTest`
+### Cuidado con `@SpringBootTest`
 
 La IA tiende a usar esto para todo:
 
@@ -336,16 +307,27 @@ class UserServiceTest {
 
 Pero no siempre hace falta arrancar toda la aplicación.
 
-## Guía sencilla
+### Guía sencilla
 
-| Tipo de test | Cuándo usarlo |
-|---|---|
-| `@Test` | Para lógica de negocio simple |
-| `@WebMvcTest` | Para probar controllers |
-| `@DataJpaTest` | Para probar repositorios |
-| `@SpringBootTest` | Para pruebas más completas de integración |
+![Tabla para elegir el tipo de test adecuado en Spring Boot](images/tabla-tipos-test-es.webp "Guía sencilla para elegir el tipo de test")
 
-## Para equipos que quieran subir nivel
+<details>
+<summary>Tabla en texto: tipo de test y cuándo usarlo</summary>
+
+<table>
+<thead>
+<tr><th>Tipo de test</th><th>Cuándo usarlo</th></tr>
+</thead>
+<tbody>
+<tr><td><code>@Test</code></td><td>Para lógica de negocio simple</td></tr>
+<tr><td><code>@WebMvcTest</code></td><td>Para probar controllers</td></tr>
+<tr><td><code>@DataJpaTest</code></td><td>Para probar repositorios</td></tr>
+<tr><td><code>@SpringBootTest</code></td><td>Para pruebas más completas de integración</td></tr>
+</tbody>
+</table>
+</details>
+
+### Para equipos que quieran subir nivel
 
 Además de lo básico, suele aportar valor incluir:
 
@@ -354,17 +336,17 @@ Además de lo básico, suele aportar valor incluir:
 - una pirámide de tests equilibrada (más unitarios, menos end-to-end);
 - criterios mínimos de calidad en PR (por ejemplo, cobertura por módulo y casos borde).
 
-## Idea clave
+### Idea clave
 
 > La IA puede escribir código, pero los tests ayudan a demostrar que ese código se comporta como esperamos.
 
 ---
 
-# 6. Seguridad: la IA puede generar código peligroso
+## Seguridad: la IA puede generar código peligroso
 
 La IA puede generar código inseguro sin darse cuenta.
 
-## Ejemplo peligroso
+### Ejemplo peligroso
 
 ```java
 @CrossOrigin("*")
@@ -383,7 +365,7 @@ Problemas:
 - puede exponer datos sensibles;
 - no tiene paginación.
 
-## Versión mejor pensada
+### Versión mejor pensada
 
 ```java
 @PreAuthorize("hasRole('ADMIN')")
@@ -400,7 +382,7 @@ Sigue siendo un ejemplo simple, pero ya mejora varios puntos:
 - tiene paginación;
 - delega en un caso de uso.
 
-## Checklist de seguridad al revisar código generado por IA
+### Checklist de seguridad al revisar código generado por IA
 
 Antes de aceptar código, revisar:
 
@@ -419,21 +401,21 @@ Antes de aceptar código, revisar:
 - ¿se exponen trazas internas en errores HTTP?
 - ¿los secretos están fuera del código y rotados?
 
-## Referencia útil
+### Referencia útil
 
 Si el equipo necesita una base común, podéis usar OWASP ASVS como checklist más completo de seguridad.
 
-## Idea clave
+### Idea clave
 
 > La salida de una IA debe tratarse como código escrito por alguien externo: hay que revisarlo.
 
 ---
 
-# 7. Transacciones en Spring Boot
+## Transacciones en Spring Boot
 
 La IA suele poner `@Transactional` en muchos métodos sin explicar por qué.
 
-## Ejemplo sencillo
+### Ejemplo sencillo
 
 ```java
 @Transactional
@@ -445,7 +427,7 @@ public void createUser(CreateUserRequest request) {
 
 Este caso puede tener sentido porque es una operación de escritura en base de datos.
 
-## Ejemplo con posible problema
+### Ejemplo con posible problema
 
 ```java
 @Transactional
@@ -468,7 +450,7 @@ El método abre una transacción de base de datos y además llama a un servicio 
 - el servicio externo no responde;
 - se envía el email pero luego falla la transacción.
 
-## Mejor idea
+### Mejor idea
 
 Una opción más segura puede ser:
 
@@ -479,7 +461,7 @@ Una opción más segura puede ser:
 4. Otro proceso envía el email.
 ```
 
-## Detalle importante: evitar perder eventos
+### Detalle importante: evitar perder eventos
 
 Si publicas el evento justo después del commit, aún puede fallar esa publicación.
 
@@ -493,17 +475,17 @@ Para sistemas críticos, es habitual usar patrón **Transactional Outbox**:
 
 Así reduces el riesgo de "dato guardado pero evento perdido".
 
-## Idea clave
+### Idea clave
 
 > No metas llamadas externas dentro de una transacción sin pensarlo bien.
 
 ---
 
-# 8. Microservicios: cuidado con las soluciones demasiado simples
+## Microservicios: cuidado con las soluciones demasiado simples
 
 La IA puede proponer una solución que funciona en local, pero falla en sistemas reales.
 
-## Ejemplo sencillo
+### Ejemplo sencillo
 
 Tenemos dos microservicios:
 
@@ -531,7 +513,7 @@ Pero hay que hacerse preguntas:
 - ¿cómo sabemos en qué estado quedó el pedido?
 - ¿cómo lo trazamos en logs?
 
-## Conceptos útiles
+### Conceptos útiles
 
 ### Idempotencia
 
@@ -602,17 +584,17 @@ Notification Service loguea abc-999.
 
 Así es más fácil investigar problemas.
 
-## Idea clave
+### Idea clave
 
 > En microservicios, no basta con llamar a otro servicio. Hay que pensar en fallos, reintentos, duplicados y trazabilidad.
 
 ---
 
-# 9. No confiar en dependencias inventadas
+## No confiar en dependencias inventadas
 
 La IA puede inventar librerías, nombres de clases o versiones.
 
-## Ejemplo inventado
+### Ejemplo inventado
 
 ```xml
 <dependency>
@@ -624,7 +606,7 @@ La IA puede inventar librerías, nombres de clases o versiones.
 
 Puede parecer real, pero no existir.
 
-## Qué debe hacer el equipo
+### Qué debe hacer el equipo
 
 Antes de añadir una dependencia sugerida por IA, revisar:
 
@@ -640,7 +622,7 @@ Antes de añadir una dependencia sugerida por IA, revisar:
 - si aparece en una SBOM del proyecto;
 - si viene de un repositorio permitido por la empresa.
 
-## Recomendación práctica
+### Recomendación práctica
 
 Para proyectos de empresa, conviene definir una política simple:
 
@@ -651,7 +633,7 @@ Para proyectos de empresa, conviene definir una política simple:
 - actualización periódica de dependencias.
 ```
 
-## Prompt útil
+### Prompt útil
 
 ```text
 Antes de recomendar una dependencia, dime:
@@ -662,17 +644,17 @@ Antes de recomendar una dependencia, dime:
 - cómo verificar que es oficial o confiable.
 ```
 
-## Idea clave
+### Idea clave
 
 > No copies dependencias sugeridas por IA sin verificarlas.
 
 ---
 
-# 10. Usar IA con código legacy
+## Usar IA con código legacy
 
 La IA puede ser muy útil para entender código antiguo, pero también puede inventar explicaciones.
 
-## Prompt peligroso
+### Prompt peligroso
 
 ```text
 Explícame para qué sirve esta clase.
@@ -680,7 +662,7 @@ Explícame para qué sirve esta clase.
 
 La IA puede responder con mucha seguridad aunque no tenga suficiente contexto.
 
-## Prompt mejor
+### Prompt mejor
 
 ```text
 Analiza esta clase basándote solo en el código.
@@ -694,7 +676,7 @@ Devuelve:
 - preguntas abiertas.
 ```
 
-## Ejemplo
+### Ejemplo
 
 Si una clase se llama:
 
@@ -718,17 +700,17 @@ Quizá realmente:
 - cambia estados;
 - borra registros antiguos.
 
-## Idea clave
+### Idea clave
 
 > La IA ayuda a entender legacy, pero no conoce la historia real del sistema si no se la das.
 
 ---
 
-# 11. MapStruct: revisar los mapeos
+## MapStruct: revisar los mapeos
 
 MapStruct es muy útil para transformar objetos, pero hay que revisar bien qué se está mapeando.
 
-## Ejemplo sencillo
+### Ejemplo sencillo
 
 ```java
 @Mapper(componentModel = "spring")
@@ -744,7 +726,7 @@ public interface UserMapper {
 
 Esto parece bien si los campos coinciden.
 
-## Posible problema
+### Posible problema
 
 Imagina que `UserEntity` tiene este campo:
 
@@ -756,7 +738,7 @@ Y `UserResponse` también tiene un campo parecido por error.
 
 La IA podría generar o aceptar un mapeo que exponga información sensible.
 
-## Mejor DTO
+### Mejor DTO
 
 ```java
 public record UserResponse(
@@ -769,7 +751,7 @@ public record UserResponse(
 
 No incluimos `passwordHash`.
 
-## Qué revisar en mapeos generados por IA
+### Qué revisar en mapeos generados por IA
 
 - campos sensibles;
 - campos con nombres parecidos pero distinto significado;
@@ -782,23 +764,23 @@ No incluimos `passwordHash`.
 - datos calculados;
 - IDs internos y externos.
 
-## Idea clave
+### Idea clave
 
 > Que MapStruct pueda mapear algo no significa que deba mapearlo.
 
 ---
 
-# 12. API primero, código después
+## API primero, código después
 
 Una mala práctica es pedir directamente el código del controller.
 
-## Prompt pobre
+### Prompt pobre
 
 ```text
 Hazme un controller para crear pedidos.
 ```
 
-## Mejor enfoque
+### Mejor enfoque
 
 Primero pedir el contrato:
 
@@ -815,7 +797,7 @@ Incluye:
 - ejemplos.
 ```
 
-## Ejemplo de contrato simple
+### Ejemplo de contrato simple
 
 ```http
 POST /orders
@@ -848,7 +830,7 @@ Errores:
 409 - Stock insuficiente
 ```
 
-## Buenas prácticas de contrato API
+### Buenas prácticas de contrato API
 
 Además del ejemplo simple, ayuda definir también:
 
@@ -860,13 +842,13 @@ Además del ejemplo simple, ayuda definir también:
 
 Después de tener esto claro, ya tiene sentido generar código.
 
-## Idea clave
+### Idea clave
 
 > Primero piensa el contrato. Luego genera la implementación.
 
 ---
 
-# 13. Documentación técnica con IA
+## Documentación técnica con IA
 
 La IA es muy buena ayudando a documentar.
 
@@ -880,7 +862,7 @@ Puede generar:
 - diagramas Mermaid;
 - resúmenes de decisiones técnicas.
 
-## Ejemplo de ADR sencillo
+### Ejemplo de ADR sencillo
 
 Prompt:
 
@@ -914,7 +896,7 @@ Consecuencias:
 - hay que revisar bien campos sensibles.
 ```
 
-## Cuidado
+### Cuidado
 
 La IA puede documentar cosas que no existen en el proyecto.
 
@@ -926,13 +908,13 @@ El sistema usa Kafka para eventos.
 
 Pero quizá vuestro sistema no usa Kafka.
 
-## Idea clave
+### Idea clave
 
 > La IA puede redactar documentación, pero el equipo debe validar que describe la realidad.
 
 ---
 
-# 14. Patrones de diseño: no usarlos porque sí
+## Patrones de diseño: no usarlos porque sí
 
 La IA puede recomendar patrones aunque no hagan falta.
 
@@ -949,7 +931,7 @@ Puede proponer:
 
 Todos pueden ser útiles, pero no siempre.
 
-## Ejemplo simple
+### Ejemplo simple
 
 Tienes una aplicación pequeña que solo guarda notas:
 
@@ -968,13 +950,13 @@ Usar DDD, CQRS, eventos de dominio, event sourcing y sagas.
 
 Pero eso probablemente es demasiado.
 
-## Pregunta que debe hacer el equipo
+### Pregunta que debe hacer el equipo
 
 ```text
 ¿Este patrón reduce la complejidad o la aumenta?
 ```
 
-## Ejemplo de buen uso de patrón
+### Ejemplo de buen uso de patrón
 
 Si tienes varios métodos de pago:
 
@@ -995,17 +977,17 @@ public interface PaymentMethod {
 
 Pero si solo tienes un método de pago, quizá no hace falta.
 
-## Idea clave
+### Idea clave
 
 > Un patrón es bueno cuando resuelve un problema real, no cuando hace que el código parezca más sofisticado.
 
 ---
 
-# 15. IA como apoyo en code review
+## IA como apoyo en code review
 
 La IA puede ser un revisor adicional, pero no debe aprobar código por sí sola.
 
-## Prompt útil para revisar una PR
+### Prompt útil para revisar una PR
 
 ```text
 Revisa este código como technical lead Java/Spring Boot.
@@ -1026,7 +1008,7 @@ Devuelve:
 - cosas que están bien.
 ```
 
-## Qué puede detectar bien
+### Qué puede detectar bien
 
 - métodos demasiado largos;
 - errores de null;
@@ -1037,7 +1019,7 @@ Devuelve:
 - endpoints sin seguridad;
 - uso incorrecto de DTOs.
 
-## Qué puede no entender bien
+### Qué puede no entender bien
 
 - contexto de negocio;
 - decisiones históricas;
@@ -1046,17 +1028,17 @@ Devuelve:
 - planes futuros del equipo;
 - acuerdos internos no escritos.
 
-## Idea clave
+### Idea clave
 
 > La IA puede ayudar a revisar, pero la responsabilidad final es humana.
 
 ---
 
-# 16. Privacidad y datos sensibles
+## Privacidad y datos sensibles
 
 El equipo debe tener reglas claras sobre qué se puede pegar en una herramienta de IA.
 
-## No pegar sin permiso
+### No pegar sin permiso
 
 - contraseñas;
 - tokens;
@@ -1070,7 +1052,7 @@ El equipo debe tener reglas claras sobre qué se puede pegar en una herramienta 
 - código propietario sensible;
 - configuraciones productivas.
 
-## Ejemplo malo
+### Ejemplo malo
 
 ```text
 Este es el log de producción con datos reales.
@@ -1079,7 +1061,7 @@ Dime qué ha pasado.
 
 Si el log contiene tokens, emails o datos personales, puede ser un problema.
 
-## Mejor enfoque
+### Mejor enfoque
 
 Anonimizar antes:
 
@@ -1089,21 +1071,21 @@ El servicio payment-service devuelve timeout.
 Correlation ID: CORR_789.
 ```
 
-## Regla sencilla
+### Regla sencilla
 
 > Si no lo subirías a un foro público, no lo pegues en una IA externa sin aprobación.
 
-## Idea clave
+### Idea clave
 
 > La IA debe usarse respetando privacidad, seguridad y normas de la empresa.
 
 ---
 
-# 17. Pedir explicaciones, no solo código
+## Pedir explicaciones, no solo código
 
 Para no perder criterio técnico, el equipo debe pedir siempre una explicación breve.
 
-## Prompt recomendable
+### Prompt recomendable
 
 ```text
 Además del código, explica:
@@ -1114,7 +1096,7 @@ Además del código, explica:
 - qué debería revisar una persona.
 ```
 
-## Ejemplo
+### Ejemplo
 
 Si la IA propone usar eventos, pregúntale:
 
@@ -1126,17 +1108,17 @@ Si la IA propone usar eventos, pregúntale:
 ¿Cómo evitamos duplicados?
 ```
 
-## Idea clave
+### Idea clave
 
 > La IA debe ayudarte a pensar mejor, no solo a producir más código.
 
 ---
 
-# 18. Señales de una mala respuesta de IA
+## Señales de una mala respuesta de IA
 
 Hay respuestas que deberían hacer saltar las alarmas.
 
-## Desconfiar si la IA
+### Desconfiar si la IA
 
 - da una respuesta muy segura con poco contexto;
 - genera mucho código sin explicar;
@@ -1152,7 +1134,7 @@ Hay respuestas que deberían hacer saltar las alarmas.
 - usa APIs antiguas;
 - no respeta el estilo del proyecto.
 
-## Checklist rápido
+### Checklist rápido
 
 Antes de aceptar código generado, preguntar:
 
@@ -1169,13 +1151,13 @@ Antes de aceptar código generado, preguntar:
 ¿Encaja con el dominio?
 ```
 
-## Idea clave
+### Idea clave
 
 > Una respuesta bonita no siempre es una respuesta buena.
 
 ---
 
-# 19. Flujo recomendado de trabajo con IA
+## Flujo recomendado de trabajo con IA
 
 Un buen flujo para usar IA en backend puede ser este:
 
@@ -1192,7 +1174,7 @@ Un buen flujo para usar IA en backend puede ser este:
 10. Hacer code review humano.
 ```
 
-## Ejemplo práctico
+### Ejemplo práctico
 
 Tarea:
 
@@ -1236,15 +1218,15 @@ Luego:
 Revisa el resultado buscando problemas de seguridad y arquitectura.
 ```
 
-## Idea clave
+### Idea clave
 
 > La IA funciona mejor cuando se usa como compañero de trabajo paso a paso.
 
 ---
 
-# 20. Conceptos mínimos que debe conocer el equipo
+## Conceptos mínimos que debe conocer el equipo
 
-## Prompt
+### Prompt
 
 Es la instrucción que le das a la IA.
 
@@ -1254,7 +1236,7 @@ Ejemplo:
 Genera tests unitarios para esta clase.
 ```
 
-## Contexto
+### Contexto
 
 Es la información que le das para que pueda responder mejor.
 
@@ -1264,7 +1246,7 @@ Ejemplo:
 Usamos Java 21, Spring Boot 3, MapStruct y arquitectura hexagonal.
 ```
 
-## Alucinación
+### Alucinación
 
 Es cuando la IA inventa algo.
 
@@ -1274,7 +1256,7 @@ Ejemplo:
 La IA dice que existe una clase PaymentHelper, pero esa clase no está en el proyecto.
 ```
 
-## RAG
+### RAG
 
 Es una técnica para que la IA responda usando documentación o código real como fuente.
 
@@ -1285,7 +1267,7 @@ Preguntas: ¿cómo se despliega este servicio?
 La IA busca en la documentación interna y responde basándose en ella.
 ```
 
-## Tool calling
+### Tool calling
 
 Es cuando la IA puede usar herramientas externas.
 
@@ -1295,7 +1277,7 @@ Ejemplo:
 La IA consulta una API interna para obtener el estado de un pedido.
 ```
 
-## Agente
+### Agente
 
 Es una IA que no solo responde, sino que puede planificar pasos y usar herramientas.
 
@@ -1305,7 +1287,7 @@ Ejemplo:
 Analiza un bug, busca logs, revisa código y propone una solución.
 ```
 
-## Guardrails
+### Guardrails
 
 Son límites de seguridad.
 
@@ -1315,7 +1297,7 @@ Ejemplo:
 La IA puede leer tickets, pero no puede borrar datos.
 ```
 
-## Evals
+### Evals
 
 Son pruebas para comprobar si la IA responde bien.
 
@@ -1326,7 +1308,7 @@ Tenemos 50 preguntas frecuentes.
 Cada vez que cambiamos el prompt, comprobamos si sigue respondiendo bien.
 ```
 
-## Salidas estructuradas
+### Salidas estructuradas
 
 Es pedir a la IA que responda en un formato controlado.
 
@@ -1340,7 +1322,7 @@ Ejemplo:
 }
 ```
 
-## LLMOps
+### LLMOps
 
 Es gestionar sistemas con IA en producción.
 
@@ -1354,13 +1336,13 @@ Incluye:
 - errores;
 - seguridad.
 
-## Idea clave
+### Idea clave
 
 > No hace falta que todo el equipo sea experto en IA, pero sí debe conocer los conceptos básicos para usarla con seguridad y criterio.
 
 ---
 
-# 21. Reglas internas recomendadas
+## Reglas internas recomendadas
 
 Estas reglas pueden servir como base para un equipo Java/Spring Boot:
 
@@ -1382,13 +1364,13 @@ Estas reglas pueden servir como base para un equipo Java/Spring Boot:
 15. La aprobación final siempre es responsabilidad del equipo.
 ```
 
-## Idea clave
+### Idea clave
 
 > Las reglas no son para frenar la IA. Son para usarla bien.
 
 ---
 
-# 22. Resumen final
+## Resumen final
 
 La IA es una herramienta muy potente para un equipo de desarrollo.
 
@@ -1436,9 +1418,9 @@ La IA puede ser un copiloto excelente, pero el equipo sigue siendo el piloto.
 
 ---
 
-# Anexo: prompts útiles para el equipo
+## Anexo: prompts útiles para el equipo
 
-## Prompt para generar una feature
+### Prompt para generar una feature
 
 ```text
 Actúa como desarrollador senior Java/Spring Boot.
@@ -1465,7 +1447,7 @@ Reglas:
 - Explica las decisiones importantes.
 ```
 
-## Prompt para revisar código
+### Prompt para revisar código
 
 ```text
 Revisa este código como technical lead Java/Spring Boot.
@@ -1488,7 +1470,7 @@ Devuelve:
 - cambios mínimos para aprobar.
 ```
 
-## Prompt para entender código legacy
+### Prompt para entender código legacy
 
 ```text
 Analiza este código basándote solo en lo que aparece en el código.
@@ -1503,7 +1485,7 @@ Devuelve:
 - preguntas abiertas.
 ```
 
-## Prompt para generar tests
+### Prompt para generar tests
 
 ```text
 Genera tests unitarios para esta clase.
@@ -1519,7 +1501,7 @@ Incluye:
 - qué test es unitario, integración o contrato.
 ```
 
-## Prompt para revisar seguridad
+### Prompt para revisar seguridad
 
 ```text
 Revisa este código buscando problemas de seguridad.
@@ -1539,7 +1521,7 @@ Comprueba:
 - mass assignment.
 ```
 
-## Prompt para diseñar una API
+### Prompt para diseñar una API
 
 ```text
 Diseña el contrato REST para esta funcionalidad:
@@ -1562,7 +1544,7 @@ Incluye:
 
 ---
 
-# Checklist final antes de aceptar código generado por IA
+## Checklist final antes de aceptar código generado por IA
 
 ```text
 [ ] Entiendo lo que hace el código.
