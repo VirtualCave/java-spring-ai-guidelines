@@ -1,3 +1,4 @@
+# Guía sencilla para no perder criterio técnico usando IA en equipos Java/Spring Boot
 
 ## Objetivo de esta guía
 
